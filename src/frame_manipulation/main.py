@@ -12,7 +12,12 @@ def main():
     """
     if (len(sys.argv) == 1):
         frame_numbers = utils.get_all_frame_numbers(config.PATH_TO_DATA)
-        utils.stitch_frames(frame_numbers)
+        diluted_frame_numbers_sorted = utils.sort_and_diluted_frame_numbers(frame_numbers, config.ITEM_DILUTION)
+        image = utils.stitch_frames(diluted_frame_numbers_sorted)
+        utils.save_image(os.path.join(config.PATH_TO_DATA, "stitched_frames.png"), image)
+        if config.DELETE_FRAMES:
+            utils.delete_frames(config.PATH_TO_DATA)
+        return 0
     elif (len(sys.argv) == 2):
         try:
             utils.show_frame(sys.argv[1])
@@ -20,7 +25,7 @@ def main():
             print("There is no such frame number!")
         return 0
     elif (len(sys.argv) != 4):
-        print("Expected python3 main.py [x: float] [y: float] [z: float] OR python3 main.py [number_of_frame: int]")
+        print("Expected python3 main.py [x: float] [y: float] [z: float] OR python3 main.py [number_of_frame: int] OR python3 main.py")
         return -1
 
     expected_point = sys.argv[1:4]
@@ -35,7 +40,9 @@ def main():
 
     utils.plot_data(path, expected_point, closest_point)
 
-    utils.stitch_frames(frame_numbers)
+    image = utils.stitch_frames(frame_numbers)
+    if image is not None:
+        utils.show_image(image)
 
     return 0
 
