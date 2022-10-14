@@ -10,7 +10,10 @@ def main():
     Reads the csv of every frame and checks if the point in the frame
     If the point in the frame then add this frame to the frames result
     """
-    if (len(sys.argv) == 2):
+    if (len(sys.argv) == 1):
+        frame_numbers = utils.get_all_frame_numbers(config.PATH_TO_DATA)
+        utils.stitch_frames(frame_numbers)
+    elif (len(sys.argv) == 2):
         try:
             utils.show_frame(sys.argv[1])
         except Exception:
