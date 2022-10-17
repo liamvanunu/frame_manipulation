@@ -215,7 +215,7 @@ def _get_average_location(path: str) -> list:
     Gets the path of the data folder and returns list
     that define the average point of the scan
     """
-    number_of_frames = len(_get_all_frame_numbers(path))
+    number_of_frames = len(glob.glob(os.path.join(path, "frameData_*.csv")))
     average_point = [0, 0, 0]
     frames_data_list = glob.glob(os.path.join(path, "frameData_*.csv"))
     for frame_data in frames_data_list:
