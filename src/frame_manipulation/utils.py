@@ -164,6 +164,7 @@ def _get_all_frame_numbers(path: str) -> list:
     Gets the path to the directory of the data and return all the frame numbers
     """
     frame_number_list = glob.glob(os.path.join(path, "frame_*.png"))
+    frame_number_list = [os.path.basename(curr_path) for curr_path in frame_number_list]
     return [int(re.findall('[0-9]+', frame_path)[0]) for frame_path in frame_number_list]
 
 
