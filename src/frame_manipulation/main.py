@@ -11,12 +11,8 @@ def main():
     If the point in the frame then add this frame to the frames result
     """
     if (len(sys.argv) == 1):
-        frame_numbers = utils.get_all_frame_numbers(config.PATH_TO_DATA)
-        diluted_frame_numbers_sorted = utils.sort_and_diluted_frame_numbers(frame_numbers, config.ITEM_DILUTION)
-        image = utils.stitch_frames(diluted_frame_numbers_sorted)
-        utils.save_image(os.path.join(config.PATH_TO_DATA, "stitched_frames.png"), image)
-        if config.DELETE_FRAMES:
-            utils.delete_frames(config.PATH_TO_DATA)
+        utils.stitch_all_frames(config.PATH_TO_DATA, config.ITEM_DILUTION, config.DELETE_FRAMES)
+        utils.save_average_location(config.PATH_TO_DATA)
         return 0
     elif (len(sys.argv) == 2):
         try:

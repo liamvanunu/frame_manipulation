@@ -159,7 +159,7 @@ def plot_data(path: str, expected_point: list, closest_point: list) -> None:
             break
 
 
-def get_all_frame_numbers(path: str) -> list:
+def _get_all_frame_numbers(path: str) -> list:
     """
     Gets the path to the directory of the data and return all the frame numbers
     """
@@ -167,7 +167,7 @@ def get_all_frame_numbers(path: str) -> list:
     return [int(re.findall('[0-9]+', frame_path)[0]) for frame_path in frame_number_list]
 
 
-def sort_and_diluted_frame_numbers(frame_numbers: list, item_dilution: int) -> list:
+def _sort_and_diluted_frame_numbers(frame_numbers: list, item_dilution: int) -> list:
     """
     get list and how much to dilute Sort the list and save every 20th item
     """
@@ -179,18 +179,70 @@ def sort_and_diluted_frame_numbers(frame_numbers: list, item_dilution: int) -> l
     return diluted_frame_numbers
 
 
-def save_image(path_to_save: str, image: list) -> None:
+def _save_image(path_to_save: str, image: list) -> None:
     """
     Gets the path we want to save the image to and the image we want to save
     """
     cv.imwrite(path_to_save, image)
 
 
-def delete_frames(path: str) -> None:
+def _delete_frames(path: str) -> None:
     """
     delete all the frame images from the path of the data
     """
     frame_images_list = glob.glob(os.path.join(path, "frame_*.png"))
     for frame in frame_images_list:
         os.remove(frame)
-    
+
+
+def stitch_all_frames(path: str, item_dilution: int, delete_frames: bool) -> None:
+    """
+    Get path to the data folder, the item dilution amount and if to delete the frames
+    and save to it all the stitched frames as an picture named stitched_frames.png
+    and delete if asked for
+    """
+    frame_numbers = _get_all_frame_numbers(path)
+    diluted_frame_numbers_sorted = _sort_and_diluted_frame_numbers(frame_numbers, item_dilution)
+    image = stitch_frames(diluted_frame_numbers_sorted)
+    _save_image(os.path.join(path, "stitched_frames.png"), image)
+    if delete_frames:
+        _delete_frames(path)
+
+
+def _get_average_location(path: str) -> list:
+    """
+    Gets the path of the data folder and returns list
+    that define the average point of the scan
+    """
+    number_of_frames = len(_get_all_frame_numbers(path))
+    average_point = [0, 0, 0]
+    frames_data_list = glob.glob(os.path.join(path, "frameData_*.csv"))
+    for frame_data in frames_data_list:
+        row = _extract_csv_file(frame_data)[0]
+        row = [float(item) for item in row]
+        average_point[0] += row[1]
+        average_point[1] += row[2]
+        average_point[2] += row[3]
+    average_point[0] /= number_of_frames
+    average_point[1] /= number_of_frames
+    average_point[2] /= number_of_frames
+    return average_point
+
+
+def _write_row_to_csv(row: list, file_path: str) -> None:
+    """
+    Get the file path we want to save and the row we want to save
+    and save the row to this path in csv format
+    """
+    with open(file_path, 'w') as f:
+        writer = csv.writer(f)
+        writer.writerow(row)
+
+
+def save_average_location(path: str) -> None:
+    """
+    Get the path to the data folder and save csv file
+    that contains the average location at the scan
+    """
+    average_point = _get_average_location(path)
+    _write_row_to_csv(average_point, os.path.join(path, "average_location.csv"))
